@@ -4,7 +4,7 @@ import numpy as np
 import streamlit as st
 import matplotlib.pyplot as plt
  
-# ---- Fixed GA Parameters (updated as requested) ----
+# ---- GA Parameters ----
 POP_SIZE = 300          # 1) population setup
 CHROM_LEN = 80          # 3) length of individuals
 TARGET_ONES = 50        # 2) optimum at ones == 50
