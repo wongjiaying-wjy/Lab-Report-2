@@ -6,7 +6,7 @@
 
 🌐 **Live App:** [https://lab-report-2-pqeussphud9jfdbura28ye.streamlit.app/](https://lab-report-2-pqeussphud9jfdbura28ye.streamlit.app/)
 
-💻 **Source Code:** [paste your GitHub repository URL here]
+💻 **Source Code:** [[(https://github.com/wongjiaying-wjy/Lab-Report-2)]]
 
 ![App overview](image/app_overview.png)
 
