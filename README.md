@@ -6,7 +6,7 @@
 
 🌐 **Live App:** [https://lab-report-2-pqeussphud9jfdbura28ye.streamlit.app/](https://lab-report-2-pqeussphud9jfdbura28ye.streamlit.app/)
 
-💻 **Source Code:** [[(https://github.com/wongjiaying-wjy/Lab-Report-2)]]
+💻 **Source Code:** [https://github.com/wongjiaying-wjy/Lab-Report-2](https://github.com/wongjiaying-wjy/Lab-Report-2)
 
 ![App overview](image/app_overview.png)
 
@@ -16,23 +16,25 @@ An interactive Streamlit application that uses a genetic algorithm to evolve a b
 
 ## Key Features
 
-- Case-study settings (300 / 80 / 50) by default, with sliders for population size, chromosome length, generations, mutation rate and random seed.
+- Case-study requirements (300 / 80 / 50) shown in a fixed table, so they cannot be changed by mistake.
+- Adjustable **mutation rate** slider and **random seed** (default 42) for reproducible runs, each with a help tooltip.
+- Sidebar "How to use" guide.
 - Result summary with the best bit pattern, its number of ones and fitness, and the first generation that reached the maximum.
-- Explore the evolution using the generation slider.
-- Watch the population evolve using Autoplay.
-- Generation trace table, fitness-function plot and final-population bit-position chart.
+- Convergence plot showing the best, average and worst fitness for every generation.
+- Histogram of the number of ones in the final population.
+- Per-generation statistics table.
 - Case-study requirement check table.
-- Reset to the default settings.
+- Reset button to restore the default mutation rate and seed.
 
 ## Screenshots
 
-| Generation 1 | Generation 50 |
+| Problem setup and settings | Results |
 |---|---|
-| ![Generation 1](image/generation_1.png) | ![Generation 50](image/generation_50.png) |
+| ![Problem setup](image/problem_setup.png) | ![Results](image/results.png) |
 
-**Fitness function and requirement check**
+**Convergence plot and requirement check**
 
-![Fitness function](image/fitness_function.png)
+![Convergence](image/convergence.png)
 
 ## How to Run
 
@@ -43,13 +45,21 @@ streamlit run SD24048_Lab2.py
 
 The app usually opens at <http://localhost:8501>.
 
+## How to Use the App
+
+1. The case-study values (300 / 80 / 50) are fixed. Only the **mutation rate** and the **seed** can be changed.
+2. Click **Run Genetic Algorithm**.
+3. Read the best pattern, the convergence plot and the final population.
+4. Change the **seed** to get a different random run. The same seed always gives the same result.
+5. Click **Reset to defaults** to restore the mutation rate and seed.
+
 ## How the Genetic Algorithm Works
 
 1. Create 300 random 80-bit chromosomes.
-2. Score every chromosome with `fitness = length - |ones - 50|`.
+2. Score every chromosome with `fitness = 80 - |ones - 50|`.
 3. **Selection:** a tournament of 3 random individuals picks each parent.
 4. **Crossover:** single-point crossover with probability 0.9.
-5. **Mutation:** each bit flips with probability 0.01.
+5. **Mutation:** each bit flips with probability 0.0125 (1/80) by default.
 6. **Elitism:** the 2 best individuals are copied unchanged into the next generation.
 7. Repeat for 50 generations and report the best pattern.
 
@@ -58,9 +68,12 @@ The app usually opens at <http://localhost:8501>.
 | Function | Purpose |
 |---|---|
 | `fitness()` | Scores each chromosome; maximum (80) when it has 50 ones. |
-| `run_ga()` | Runs selection, crossover, mutation and elitism for all generations. |
-| `draw_generation()` | Draws the fitness curves and the number-of-ones histogram for a generation. |
-| `reset_defaults()` | Restores default settings. |
+| `init_population()` | Creates the random starting population. |
+| `tournament_selection()` | Picks the fittest of 3 random individuals as a parent. |
+| `single_point_crossover()` | Swaps the tails of two parents after one random cut. |
+| `mutate()` | Flips each bit with the mutation probability. |
+| `evolve()` | Runs selection, crossover, mutation and elitism for all generations and records the statistics. |
+| `reset_defaults()` | Restores the default mutation rate and seed. |
 
 ## Repository Structure
 
