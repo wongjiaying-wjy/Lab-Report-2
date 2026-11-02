@@ -11,7 +11,6 @@ TARGET_ONES = 50          # 2) fitness peaks when number of ones == 50
 MAX_FITNESS = 80          # 4) return value is 80 when ones == 50
 N_GENERATIONS = 50        # 5) number of generations
  
-# Only these two settings can be changed by the user
 DEFAULTS = {"mut": 0.0125, "seed": 42}
  
 # ---- Fixed GA settings ----
