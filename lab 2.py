@@ -3,57 +3,57 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
- 
+
 # ---- Case-study defaults ----
 DEFAULTS = {"pop": 300, "length": 80, "gens": 50, "mut": 0.0125, "seed": 42}
 TARGET_ONES = 50          # fitness peaks when number of ones == 50
- 
+
 # ---- Fixed GA settings ----
 TOURNAMENT_K = 3
 CROSSOVER_RATE = 0.9
 ELITISM = 2               # best individuals copied unchanged to next generation
- 
- 
+
+
 # ---- Fitness Function ----
 def fitness(individual: np.ndarray, max_fitness: int) -> float:
     """Maximum (= chromosome length, 80 by default) when ones == 50.
     Every one above or below 50 costs 1 point."""
     ones = int(individual.sum())
     return max_fitness - abs(ones - TARGET_ONES)
- 
- 
+
+
 # ---- GA Operators ----
 def init_population(pop_size, chrom_len):
     return np.random.randint(0, 2, size=(pop_size, chrom_len), dtype=np.int8)
- 
- 
+
+
 def tournament_selection(pop, fits, k):
     idxs = np.random.randint(0, len(pop), size=k)
     return pop[idxs[np.argmax(fits[idxs])]].copy()
- 
- 
+
+
 def single_point_crossover(p1, p2):
     if np.random.rand() > CROSSOVER_RATE:
         return p1.copy(), p2.copy()
     point = np.random.randint(1, len(p1))
     return (np.concatenate([p1[:point], p2[point:]]),
             np.concatenate([p2[:point], p1[point:]]))
- 
- 
+
+
 def mutate(individual, rate):
     mask = np.random.rand(len(individual)) < rate
     individual[mask] = 1 - individual[mask]
     return individual
- 
- 
+
+
 def evolve(pop, generations, mut_rate, max_fitness):
     history = []
     best_individual, best_f, first_hit = None, -np.inf, None
- 
+
     for gen in range(1, generations + 1):
         fits = np.array([fitness(ind, max_fitness) for ind in pop], dtype=float)
         ones = pop.sum(axis=1)
- 
+
         # Record statistics for this generation
         idx = int(np.argmax(fits))
         history.append({
@@ -68,11 +68,11 @@ def evolve(pop, generations, mut_rate, max_fitness):
             best_f, best_individual = float(fits[idx]), pop[idx].copy()
         if first_hit is None and fits[idx] == max_fitness:
             first_hit = gen
- 
+
         # Elitism: keep the best individuals unchanged
         elite_idx = np.argsort(fits, kind="stable")[-ELITISM:]
         new_pop = [pop[i].copy() for i in elite_idx]
- 
+
         # Fill the rest: selection -> crossover -> mutation
         while len(new_pop) < len(pop):
             p1 = tournament_selection(pop, fits, TOURNAMENT_K)
@@ -80,44 +80,68 @@ def evolve(pop, generations, mut_rate, max_fitness):
             c1, c2 = single_point_crossover(p1, p2)
             new_pop.extend([mutate(c1, mut_rate), mutate(c2, mut_rate)])
         pop = np.array(new_pop[:len(pop)], dtype=np.int8)
- 
+
     return best_individual, best_f, pd.DataFrame(history), pop, first_hit
- 
- 
+
+
 def reset_defaults():
     for key, value in DEFAULTS.items():
         st.session_state[key] = value
     st.session_state.pop("result", None)
- 
- 
+
+
 # ---- Streamlit UI ----
 st.set_page_config(page_title="Bit Pattern GA", page_icon="🧬", layout="centered")
- 
+
 for key, value in DEFAULTS.items():
     st.session_state.setdefault(key, value)
- 
+
 st.title("🧬 Genetic Algorithm: Evolve an 80-bit Pattern")
 st.caption("BSD3513 Introduction to AI · Lab Report 2 · SD24048 WONG JIA YING")
- 
+
 # Settings in the sidebar
 with st.sidebar:
+    st.header("📖 How to use")
+    st.info(
+        "1. Keep the default settings (300 / 80 / 50) for the case study, "
+        "or move the sliders to experiment.\n"
+        "2. Click **Run Genetic Algorithm** on the main page.\n"
+        "3. Read the best pattern, the convergence plot and the final population.\n"
+        "4. Change the **seed** to get a different random run.\n"
+        "5. Click **Reset to defaults** to return to the case-study values.\n\n"
+        "💡 Hover over the **?** beside each setting for an explanation."
+    )
+
     st.header("⚙️ Settings")
     st.caption("Defaults follow the case study (300 / 80 / 50).")
-    pop_size = st.slider("Population size", 50, 500, key="pop", step=10)
-    chrom_len = st.slider("Chromosome length", 60, 120, key="length")
-    n_gens = st.slider("Generations", 10, 100, key="gens")
-    mut_rate = st.slider("Mutation rate (per bit)", 0.0, 0.10, key="mut",
-                         step=0.0025, format="%.4f")
-    seed = st.number_input("Random seed", min_value=0, step=1, key="seed")
-    st.button("Reset to defaults", on_click=reset_defaults)
- 
+    pop_size = st.slider(
+        "Population size", 50, 500, key="pop", step=10,
+        help="How many bit patterns (individuals) exist in every generation. "
+             "A bigger population explores more patterns but runs slower. Case study: 300.")
+    chrom_len = st.slider(
+        "Chromosome length", 60, 120, key="length",
+        help="Number of bits in each pattern. The maximum fitness equals this length. "
+             "Case study: 80.")
+    n_gens = st.slider(
+        "Generations", 10, 100, key="gens",
+        help="How many times the population is replaced by a new one. Case study: 50.")
+    mut_rate = st.slider(
+        "Mutation rate (per bit)", 0.0, 0.10, key="mut", step=0.0025, format="%.4f",
+        help="Chance that each bit flips (0↔1) in a new child. Higher means more "
+             "variety but less stability. Default 1/80 = 0.0125 (about one flip per pattern).")
+    seed = st.number_input(
+        "Random seed", min_value=0, step=1, key="seed",
+        help="Same seed gives the same result every time. Change it to try a different run.")
+    st.button("Reset to defaults", on_click=reset_defaults,
+              help="Restore the case-study settings and clear the previous result.")
+
 max_fitness = chrom_len  # fitness = length - |ones - 50|, so max = length
- 
+
 st.markdown(
     f"**Fitness function:** `f(x) = {max_fitness} - |ones(x) - {TARGET_ONES}|` "
     f"→ maximum **{max_fitness}** when the pattern has exactly **{TARGET_ONES}** ones."
 )
- 
+
 if st.button("Run Genetic Algorithm", type="primary"):
     random.seed(int(seed))
     np.random.seed(int(seed))
@@ -126,11 +150,11 @@ if st.button("Run Genetic Algorithm", type="primary"):
         max_fitness, pop_size, chrom_len, n_gens, int(seed),
         *evolve(population, n_gens, mut_rate, max_fitness),
     )
- 
+
 if "result" in st.session_state:
     (max_f, pop_used, len_used, gens_used, seed_used,
      best_ind, best_fit, history, final_pop, first_hit) = st.session_state["result"]
- 
+
     ones_count = int(best_ind.sum())
     st.subheader("🏁 Best Individual Found")
     c1, c2, c3 = st.columns(3)
@@ -140,7 +164,7 @@ if "result" in st.session_state:
     st.write(f"**Ones**: {ones_count} | **Zeros**: {len_used - ones_count} | "
              f"**Length**: {len_used} | **Seed**: {seed_used}")
     st.code("".join(map(str, best_ind.tolist())), language="text")
- 
+
     # Convergence plot
     st.subheader("📉 Convergence (Fitness per Generation)")
     fig, ax = plt.subplots(figsize=(7, 4))
@@ -158,7 +182,7 @@ if "result" in st.session_state:
     st.caption("With a large random population, one individual with exactly 50 ones often exists "
                "already in generation 1, so the best line can start at the maximum. "
                "The average line shows the whole population improving.")
- 
+
     # Final population distribution
     st.subheader("📊 Number of Ones in the Final Population")
     final_ones = final_pop.sum(axis=1)
@@ -173,10 +197,10 @@ if "result" in st.session_state:
     plt.close(fig2)
     st.write(f"{float((final_ones == TARGET_ONES).mean()):.0%} of the final population "
              f"has exactly {TARGET_ONES} ones.")
- 
+
     with st.expander("📋 Per-generation statistics"):
         st.dataframe(history, hide_index=True)
- 
+
     # Case-study requirement check
     st.subheader("✅ Case-Study Requirement Check")
     st.table(pd.DataFrame({
@@ -188,12 +212,12 @@ if "result" in st.session_state:
                  "✅" if gens_used == 50 else "❌",
                  "✅" if best_fit == 80 and ones_count == 50 else "❌"],
     }).set_index("Requirement"))
- 
+
     if best_fit == max_f and ones_count == TARGET_ONES:
         st.success(f"Perfect match achieved: ones = {TARGET_ONES} and fitness = {max_f} ✅")
     else:
         st.info("GA may reach near-optimal solutions; try another seed to explore further.")
- 
+
 with st.expander("🧠 How it works"):
     st.markdown(f"""
 1. **Initialise** random bit strings (population).
@@ -203,6 +227,6 @@ with st.expander("🧠 How it works"):
 5. **Mutation:** each bit flips with the chosen mutation rate.
 6. **Elitism:** the {ELITISM} best individuals are copied unchanged.
 7. Repeat for the chosen number of generations and report the best pattern.
- 
+
 Cost of one run is **O(G × P × L)**: for the case study 50 × 300 × 80 = 1,200,000 bit operations.
 """)
