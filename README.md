@@ -8,7 +8,7 @@
 
 💻 **Source Code:** [https://github.com/wongjiaying-wjy/Lab-Report-2](https://github.com/wongjiaying-wjy/Lab-Report-2)
 
-![App overview](image/app_overview.png)
+![App overview](image/main page.png)
 
 ## About
 
