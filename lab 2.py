@@ -163,7 +163,7 @@ if "result" in st.session_state:
      best_ind, best_fit, history, final_pop, first_hit) = st.session_state["result"]
  
     ones_count = int(best_ind.sum())
-    st.subheader("🏁 Best Individual Found")
+    st.subheader("Best Individual Found")
     c1, c2, c3 = st.columns(3)
     c1.metric("Best fitness", f"{best_fit:.0f} / {max_f}")
     c2.metric("Number of ones", ones_count)
