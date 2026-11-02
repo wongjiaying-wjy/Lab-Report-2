@@ -28,13 +28,13 @@ An interactive Streamlit application that uses a genetic algorithm to evolve a b
 
 ## Screenshots
 
-| Problem setup and settings | Results |
-|---|---|
-| ![Problem setup](image/problem_setup.png) | ![Results](image/results.png) |
+**Results and convergence plot**
 
-**Convergence plot and requirement check**
+![Results and convergence](image/results_convergence.png)
 
-![Convergence](image/convergence.png)
+**Final population and requirement check**
+
+![Final population and requirement check](image/final_population.png)
 
 ## How to Run
 
