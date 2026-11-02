@@ -99,41 +99,43 @@ for key, value in DEFAULTS.items():
 st.title("🧬 Genetic Algorithm: Evolve an 80-bit Pattern")
 st.caption("BSD3513 Introduction to AI · Lab Report 2 · SD24048 WONG JIA YING")
 
-# Settings in the sidebar
+# Sidebar: how to use
 with st.sidebar:
     st.header("📖 How to use")
     st.info(
         "1. Keep the default settings (300 / 80 / 50) for the case study, "
         "or move the sliders to experiment.\n"
-        "2. Click **Run Genetic Algorithm** on the main page.\n"
+        "2. Click **Run Genetic Algorithm**.\n"
         "3. Read the best pattern, the convergence plot and the final population.\n"
         "4. Change the **seed** to get a different random run.\n"
         "5. Click **Reset to defaults** to return to the case-study values.\n\n"
         "💡 Hover over the **?** beside each setting for an explanation."
     )
 
-    st.header("⚙️ Settings")
-    st.caption("Defaults follow the case study (300 / 80 / 50).")
+# Settings in the centre of the page, above the Run button
+st.subheader("⚙️ Settings")
+st.caption("Defaults follow the case study (300 / 80 / 50).")
+left, right = st.columns(2)
+with left:
     pop_size = st.slider(
         "Population size", 50, 500, key="pop", step=10,
         help="How many bit patterns (individuals) exist in every generation. "
              "A bigger population explores more patterns but runs slower. Case study: 300.")
+    n_gens = st.slider(
+        "Generations", 10, 100, key="gens",
+        help="How many times the population is replaced by a new one. Case study: 50.")
+    seed = st.number_input(
+        "Random seed", min_value=0, step=1, key="seed",
+        help="Same seed gives the same result every time. Change it to try a different run.")
+with right:
     chrom_len = st.slider(
         "Chromosome length", 60, 120, key="length",
         help="Number of bits in each pattern. The maximum fitness equals this length. "
              "Case study: 80.")
-    n_gens = st.slider(
-        "Generations", 10, 100, key="gens",
-        help="How many times the population is replaced by a new one. Case study: 50.")
     mut_rate = st.slider(
         "Mutation rate (per bit)", 0.0, 0.10, key="mut", step=0.0025, format="%.4f",
         help="Chance that each bit flips (0↔1) in a new child. Higher means more "
              "variety but less stability. Default 1/80 = 0.0125 (about one flip per pattern).")
-    seed = st.number_input(
-        "Random seed", min_value=0, step=1, key="seed",
-        help="Same seed gives the same result every time. Change it to try a different run.")
-    st.button("Reset to defaults", on_click=reset_defaults,
-              help="Restore the case-study settings and clear the previous result.")
 
 max_fitness = chrom_len  # fitness = length - |ones - 50|, so max = length
 
@@ -142,7 +144,13 @@ st.markdown(
     f"→ maximum **{max_fitness}** when the pattern has exactly **{TARGET_ONES}** ones."
 )
 
-if st.button("Run Genetic Algorithm", type="primary"):
+_, mid, _ = st.columns([1, 2, 1])
+with mid:
+    run_clicked = st.button("Run Genetic Algorithm", type="primary", use_container_width=True)
+    st.button("Reset to defaults", on_click=reset_defaults, use_container_width=True,
+              help="Restore the case-study settings and clear the previous result.")
+
+if run_clicked:
     random.seed(int(seed))
     np.random.seed(int(seed))
     population = init_population(pop_size, chrom_len)
