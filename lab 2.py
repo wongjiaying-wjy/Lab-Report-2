@@ -207,23 +207,7 @@ if "result" in st.session_state:
  
     with st.expander("📋 Per-generation statistics"):
         st.dataframe(history, hide_index=True)
- 
-    # Case-study requirement check
-    st.subheader("✅ Case-Study Requirement Check")
-    st.table(pd.DataFrame({
-        "Requirement": ["Population size = 300", "Length of individuals = 80",
-                        "Generations = 50", "Max fitness 80 at 50 ones"],
-        "Used": [str(pop_used), str(len_used), str(gens_used), f"{best_fit:.0f} at {ones_count} ones"],
-        "Met?": ["✅" if pop_used == 300 else "❌",
-                 "✅" if len_used == 80 else "❌",
-                 "✅" if gens_used == 50 else "❌",
-                 "✅" if best_fit == 80 and ones_count == 50 else "❌"],
-    }).set_index("Requirement"))
- 
-    if best_fit == max_f and ones_count == TARGET_ONES:
-        st.success(f"Perfect match achieved: ones = {TARGET_ONES} and fitness = {max_f} ✅")
-    else:
-        st.info("GA may reach near-optimal solutions; try another seed to explore further.")
+
  
 with st.expander("🧠 How it works"):
     st.markdown(f"""
