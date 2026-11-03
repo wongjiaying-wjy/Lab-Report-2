@@ -13,14 +13,13 @@ N_GENERATIONS = 50        # 5) number of generations
  
 SELECTION_METHODS = ["Tournament", "Roulette wheel", "Rank-based"]
 CROSSOVER_METHODS = ["One-point", "Two-point", "Uniform"]
- 
+
 # Default values of the adjustable settings
 DEFAULTS = {"sel": "Tournament", "cx": "One-point", "cxr": 0.9, "mut": 0.0125, "seed": 42}
  
 # ---- Fixed GA settings ----
 TOURNAMENT_K = 3
 ELITISM = 2               # best individuals copied unchanged to next generation
- 
  
 # ---- Fitness Function ----
 def fitness(individual: np.ndarray, max_fitness: int) -> float:
@@ -29,16 +28,13 @@ def fitness(individual: np.ndarray, max_fitness: int) -> float:
     ones = int(individual.sum())
     return max_fitness - abs(ones - TARGET_ONES)
  
- 
 # ---- GA Operators ----
 def init_population(pop_size, chrom_len):
     return np.random.randint(0, 2, size=(pop_size, chrom_len), dtype=np.int8)
  
- 
 def tournament_selection(pop, fits, k):
     idxs = np.random.randint(0, len(pop), size=k)
     return pop[idxs[np.argmax(fits[idxs])]].copy()
- 
  
 def selection_probabilities(fits, method):
     """Roulette wheel: chance proportional to fitness.
@@ -50,31 +46,26 @@ def selection_probabilities(fits, method):
         ranks[np.argsort(fits, kind="stable")] = np.arange(1, len(fits) + 1)
         return ranks / ranks.sum()
     return None
- 
- 
+
 def select_parent(pop, fits, method, probs):
     if method == "Tournament":
         return tournament_selection(pop, fits, TOURNAMENT_K)
     return pop[np.random.choice(len(pop), p=probs)].copy()
- 
- 
+
 def one_point_crossover(p1, p2):
     point = np.random.randint(1, len(p1))
     return (np.concatenate([p1[:point], p2[point:]]),
             np.concatenate([p2[:point], p1[point:]]))
- 
- 
+
 def two_point_crossover(p1, p2):
     a, b = sorted(np.random.choice(range(1, len(p1)), size=2, replace=False))
     return (np.concatenate([p1[:a], p2[a:b], p1[b:]]),
             np.concatenate([p2[:a], p1[a:b], p2[b:]]))
- 
- 
+
 def uniform_crossover(p1, p2):
     mask = np.random.rand(len(p1)) < 0.5
     return np.where(mask, p1, p2), np.where(mask, p2, p1)
- 
- 
+
 def crossover(p1, p2, method, rate):
     if np.random.rand() > rate:
         return p1.copy(), p2.copy()
@@ -82,14 +73,12 @@ def crossover(p1, p2, method, rate):
         return two_point_crossover(p1, p2)
     if method == "Uniform":
         return uniform_crossover(p1, p2)
-    return one_point_crossover(p1, p2)
- 
- 
+    return one_point_crossover(p1, p2）
+
 def mutate(individual, rate):
     mask = np.random.rand(len(individual)) < rate
     individual[mask] = 1 - individual[mask]
     return individual
- 
  
 def evolve(pop, generations, mut_rate, max_fitness, selection, cx_method, cx_rate):
     history = []
@@ -129,12 +118,10 @@ def evolve(pop, generations, mut_rate, max_fitness, selection, cx_method, cx_rat
  
     return best_individual, best_f, pd.DataFrame(history), pop, first_hit
  
- 
 def reset_defaults():
     for key, value in DEFAULTS.items():
         st.session_state[key] = value
     st.session_state.pop("result", None)
- 
  
 # ---- Streamlit UI ----
 st.set_page_config(page_title="Genetic Algorithm: Bit Pattern Evolution", page_icon="🧬", layout="centered")
@@ -145,6 +132,19 @@ for key, value in DEFAULTS.items():
 st.title("🧬 Genetic Algorithm: Bit Pattern Evolution")
 st.caption("BSD3513 Introduction to AI · Lab Report 2 · SD24048 WONG JIA YING")
  
+# how to use
+with st.sidebar:
+    st.header("📖 How to use")
+    st.info(
+        "1. The case-study values (300 / 80 / 50) are fixed. You can change the "
+        "**selection method**, **crossover method**, **seed**, **crossover rate** and **mutation rate**.\n"
+        "2. Click **Run Genetic Algorithm**.\n"
+        "3. Read the best pattern and the convergence plot.\n"
+        "4. Change the **seed** to get a different random run.\n"
+        "5. Click **Reset to defaults** to restore the default settings.\n\n"
+        "💡 Hover over the **?** beside a setting for an explanation."
+    )
+
 # Fixed requirements (cannot be changed)
 st.subheader("ℹ️ Problem setup")
 st.caption("Fixed by the lab requirement")
@@ -159,8 +159,7 @@ st.markdown(
     f"The maximum fitness is **{MAX_FITNESS}**, reached when the pattern has exactly "
     f"**{TARGET_ONES}** ones. Every one above or below {TARGET_ONES} costs 1 point."
 )
- 
-# Adjustable settings, above the Run button
+
 st.subheader("Genetic Algorithm Settings")
 col1, col2, col3 = st.columns(3)
 with col1:
@@ -188,19 +187,7 @@ with col5:
         "Mutation rate per bit", 0.0, 0.10, key="mut", step=0.0025, format="%.4f",
         help="Chance that each bit flips (0↔1) in a new child. Higher means more "
              "variety but less stability. Default 1/80 = 0.0125 (about one flip per pattern).")
- 
-# How to use (above the Run button)
-st.subheader("📖 How to use")
-st.info(
-    "1. The case-study values (300 / 80 / 50) are fixed. You can change the "
-    "**selection method**, **crossover method**, **seed**, **crossover rate** and **mutation rate**.\n"
-    "2. Click **Run Genetic Algorithm**.\n"
-    "3. Read the best pattern and the convergence plot.\n"
-    "4. Change the **seed** to get a different random run.\n"
-    "5. Click **Reset to defaults** to restore the default settings.\n\n"
-    "💡 Hover over the **?** beside a setting for an explanation."
-)
- 
+
 with st.expander("🧠 How it works"):
     st.markdown(f"""
 1. **Initialise** random bit strings (population).
@@ -213,7 +200,7 @@ with st.expander("🧠 How it works"):
  
 Cost of one run is **O(G × P × L)**: for the case study 50 × 300 × 80 = 1,200,000 bit operations.
 """)
- 
+
 _, mid, _ = st.columns([1, 2, 1])
 with mid:
     run_clicked = st.button("Run Genetic Algorithm", type="primary", use_container_width=True)
