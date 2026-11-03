@@ -96,26 +96,13 @@ def reset_defaults():
  
  
 # ---- Streamlit UI ----
-st.set_page_config(page_title="Bit Pattern GA", page_icon="🧬", layout="centered")
+st.set_page_config(page_title="Genetic Algorithm: Bit Pattern Evolution", page_icon="🧬", layout="centered")
  
 for key, value in DEFAULTS.items():
     st.session_state.setdefault(key, value)
  
-st.title("🧬 Genetic Algorithm: Evolve an 80-bit Pattern with 50 Ones")
+st.title("🧬 Genetic Algorithm: Bit Pattern Evolution")
 st.caption("BSD3513 Introduction to AI · Lab Report 2 · SD24048 WONG JIA YING")
- 
-# Sidebar: how to use
-with st.sidebar:
-    st.header("📖 How to use")
-    st.info(
-        "1. The case-study values (300 / 80 / 50) are fixed. You can only change the "
-        "**mutation rate** and the **seed**.\n"
-        "2. Click **Run Genetic Algorithm**.\n"
-        "3. Read the best pattern, the convergence plot and the final population.\n"
-        "4. Change the **seed** to get a different random run.\n"
-        "5. Click **Reset to defaults** to restore the mutation rate and seed.\n\n"
-        "💡 Hover over the **?** beside a setting for an explanation."
-    )
  
 # Fixed requirements (cannot be changed)
 st.subheader("ℹ️ Problem setup")
@@ -143,6 +130,18 @@ with right:
         "Random seed", min_value=0, step=1, key="seed",
         help="Same seed gives the same result every time. Change it to try a different run.")
  
+# How to use (above the Run button)
+st.subheader("📖 How to use")
+st.info(
+    "1. The case-study values (300 / 80 / 50) are fixed. You can only change the "
+    "**mutation rate** and the **seed**.\n"
+    "2. Click **Run Genetic Algorithm**.\n"
+    "3. Read the best pattern and the convergence plot.\n"
+    "4. Change the **seed** to get a different random run.\n"
+    "5. Click **Reset to defaults** to restore the mutation rate and seed.\n\n"
+    "💡 Hover over the **?** beside a setting for an explanation."
+)
+ 
 _, mid, _ = st.columns([1, 2, 1])
 with mid:
     run_clicked = st.button("Run Genetic Algorithm", type="primary", use_container_width=True)
@@ -160,7 +159,7 @@ if run_clicked:
  
 if "result" in st.session_state:
     (max_f, pop_used, len_used, gens_used, seed_used,
-     best_ind, best_fit, history, final_pop, first_hit) = st.session_state["result"]
+     best_ind, best_fit, history, _final_pop, first_hit) = st.session_state["result"]
  
     ones_count = int(best_ind.sum())
     st.subheader("Best Individual Found")
@@ -190,24 +189,9 @@ if "result" in st.session_state:
                "already in generation 1, so the best line can start at the maximum. "
                "The average line shows the whole population improving.")
  
-    # Final population distribution
-    st.subheader("📊 Number of Ones in the Final Population")
-    final_ones = final_pop.sum(axis=1)
-    fig2, ax2 = plt.subplots(figsize=(7, 3.5))
-    ax2.hist(final_ones, bins=range(int(final_ones.min()), int(final_ones.max()) + 2),
-             align="left", edgecolor="white")
-    ax2.axvline(TARGET_ONES, color="red", linestyle="--", label=f"Target = {TARGET_ONES}")
-    ax2.set_xlabel("Number of ones")
-    ax2.set_ylabel("Individuals")
-    ax2.legend()
-    st.pyplot(fig2)
-    plt.close(fig2)
-    st.write(f"{float((final_ones == TARGET_ONES).mean()):.0%} of the final population "
-             f"has exactly {TARGET_ONES} ones.")
- 
     with st.expander("📋 Per-generation statistics"):
         st.dataframe(history, hide_index=True)
-
+ 
  
 with st.expander("🧠 How it works"):
     st.markdown(f"""
