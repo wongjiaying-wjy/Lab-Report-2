@@ -1,4 +1,4 @@
-# 🧬 Genetic Algorithm Explorer: Evolving an 80-bit Pattern with 50 Ones
+# 🧬 Genetic Algorithm: Bit Pattern Evolution
 
 **BSD3513 Introduction to Artificial Intelligence · Lab Report 2**
 
