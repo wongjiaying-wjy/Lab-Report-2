@@ -73,7 +73,7 @@ def crossover(p1, p2, method, rate):
         return two_point_crossover(p1, p2)
     if method == "Uniform":
         return uniform_crossover(p1, p2)
-    return one_point_crossover(p1, p2）
+    return one_point_crossover(p1, p2)
 
 def mutate(individual, rate):
     mask = np.random.rand(len(individual)) < rate
