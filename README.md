@@ -41,7 +41,7 @@ An interactive Streamlit application that uses a genetic algorithm to evolve a b
 | Setting | Value |
 |---|---|
 | Tournament size | 3 |
-| Elitism | 2 best individuals copied unchanged |
+| Elitism | 2 (best individuals copied unchanged) |
 
 ## Key Features
 
